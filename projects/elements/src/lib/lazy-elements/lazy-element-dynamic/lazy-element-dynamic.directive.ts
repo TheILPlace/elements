@@ -4,7 +4,7 @@ import {
   Directive,
   EmbeddedViewRef,
   Inject,
-  Input,
+  Input, Output, EventEmitter
   OnInit,
   Renderer2,
   TemplateRef,
@@ -35,6 +35,8 @@ export class LazyElementDynamicDirective implements OnInit {
   @Input('axLazyElementDynamicModule') isModule: boolean | undefined; // tslint:disable-line:no-input-rename
   @Input('axLazyElementDynamicImportMap') importMap: boolean | undefined; // tslint:disable-line:no-input-rename
 
+  @Output('axElementLoaded') elementLoaded = new EventEmitter<any>();
+  
   private viewRef: EmbeddedViewRef<any> = null;
 
   constructor(
@@ -65,7 +67,8 @@ export class LazyElementDynamicDirective implements OnInit {
       this.vcr.createEmbeddedView(this.loadingTemplateRef);
     } else if (loadingComponent) {
       const factory = this.cfr.resolveComponentFactory(loadingComponent);
-      this.vcr.createComponent(factory);
+      const newComponent = this.vcr.createComponent(factory);
+      this.elementLoaded.emit(newComponent);
     }
 
     this.elementsLoaderService
